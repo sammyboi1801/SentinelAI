@@ -1,0 +1,2 @@
+include src/sentinel/scripts/*
+recursive-include src/sentinel/scripts *

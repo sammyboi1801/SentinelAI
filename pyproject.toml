@@ -1,0 +1,89 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sentinel-ai-os"
+version = "1.0.2"
+description = "Autonomous AI Operating System layer"
+readme = "README.md"
+requires-python = ">=3.9, <3.14"
+license = "MIT"
+authors = [
+  { name="Sam Selvaraj", email="samselvaraj1801@gmail.com" }
+]
+keywords = ["ai", "agent", "automation", "llm"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+
+dependencies = [
+  # Core
+  "rich",
+  "typer[all]",
+  "pydantic",
+  "tabulate",
+  "markdown",
+  "schedule",
+  "keyring",
+  "tzlocal",
+  "psutil",
+
+  # LLM / AI
+  "litellm",
+  "anthropic",
+  "groq",
+  "openai",
+  "chromadb",
+  "tavily",
+
+  # Web / Search
+  "requests",
+  "beautifulsoup4",
+  "duckduckgo-search",
+  "ddgs",
+  "googlemaps",
+
+  # Google APIs
+  "google-auth",
+  "google-auth-oauthlib",
+  "google-auth-httplib2",
+  "google-api-python-client",
+
+  # Files / Office
+  "pandas",
+  "openpyxl",
+  "python-docx",
+  "fpdf",
+  "docx2pdf",
+  "pymupdf",
+  "pypdf",
+
+  # Desktop / OS
+  "pyautogui",
+  "pygetwindow",
+  "screen_brightness_control",
+  "pycaw",
+  "comtypes",
+  "pyperclip",
+  "plyer",
+  "pyttsx3",
+  "sentence-transformers",
+
+  # Vision / Audio
+  "pillow",
+  "opencv-python",
+  "SpeechRecognition",
+  "pyaudio"
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+
+[tool.setuptools.package-data]
+sentinel = ["scripts/*", "*.json"]
+
+[project.scripts]
+sentinel = "sentinel.main:app"
+
