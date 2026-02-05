@@ -76,7 +76,7 @@ Sentinel is built on a modular Python architecture designed for extensibility.
 
 As a published package, you can install Sentinel directly using pip:
 ```bash
-pip install sentinel-ai
+pip install sentinel-ai-os
 ```
 
 ### Step 2: System Boot & Configuration
