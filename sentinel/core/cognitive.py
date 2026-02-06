@@ -16,7 +16,7 @@ def get_daily_briefing(config_manager):
 
     # 2. Get Weather
     settings = config_manager.load()
-    location = "New York"
+    location = config_manager.get("user.location", "New York")
 
     if "weather" in settings and "location" in settings["weather"]:
         location = settings["weather"]["location"]
