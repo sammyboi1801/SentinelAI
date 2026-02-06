@@ -1,3 +1,4 @@
+# FILE: tools/indexer.py
 import os
 import sqlite3
 import time
@@ -6,10 +7,9 @@ from pypdf import PdfReader
 from docx import Document
 from openpyxl import load_workbook
 from pathlib import Path
+from sentinel.paths import USER_DATA_DIR
 
-BASE_DIR = Path.home() / ".sentinel-1"
-BASE_DIR.mkdir(exist_ok=True)
-DB_FILE = BASE_DIR / "file_index.db"
+DB_FILE = USER_DATA_DIR / "file_index.db"
 MAX_FILE_SIZE_MB = 10  # Skip files larger than this to save RAM
 THROTTLE_SEC = 0.05  # Sleep time between files (Smoothness)
 
@@ -81,6 +81,7 @@ def build_index(root=None, verbose=False):
     count = 0
     updated = 0
 
+    # We scan these specific user folders to stay efficient
     target_dirs = [
         os.path.join(root, "Documents"),
         os.path.join(root, "Desktop"),
@@ -91,9 +92,11 @@ def build_index(root=None, verbose=False):
         if not os.path.exists(target): continue
 
         for r, dirs, files in os.walk(target):
+            # Clean skip dirs in-place
             dirs[:] = [d for d in dirs if d not in SKIP_DIRS and not d.startswith(".")]
 
             for file in files:
+                # CPU BREATHING ROOM
                 time.sleep(THROTTLE_SEC)
 
                 ext = os.path.splitext(file)[1].lower()
@@ -107,20 +110,23 @@ def build_index(root=None, verbose=False):
                     stats = os.stat(path)
                     current_mtime = stats.st_mtime
 
+                    # Skip unchanged
                     if path in existing_meta and existing_meta[path] == current_mtime:
                         continue
 
                     content = _get_text_from_file(path, ext)
                     if not content or len(content) < 5: continue
 
+                    # Update Database
                     c.execute("DELETE FROM files WHERE path = ?", (path,))
                     c.execute("INSERT INTO files (path, name, content) VALUES (?,?,?)", (path, file, content))
                     c.execute("INSERT OR REPLACE INTO file_meta (path, mtime) VALUES (?,?)", (path, current_mtime))
-                    conn.commit()
+                    conn.commit()  # Commit often to save progress
 
                     updated += 1
                     count += 1
 
+                    # LOGGING: Only print every 10th file to reduce spam
                     if verbose and updated % 10 == 0:
                         print(f"   [Indexer] Indexed: {file} ({updated} total)")
 
@@ -137,6 +143,7 @@ def search_index(query):
     if not os.path.exists(DB_FILE): return "Index missing."
     conn = sqlite3.connect(DB_FILE)
     try:
+        # Search content and return snippets
         res = conn.execute(
             "SELECT path, snippet(files, 2, '[', ']', '...', 10) FROM files WHERE files MATCH ? LIMIT 5",
             (query,)

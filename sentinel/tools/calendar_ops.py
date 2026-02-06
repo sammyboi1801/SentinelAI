@@ -1,5 +1,3 @@
-# sentinel/tools/calendar_ops.py
-
 import datetime
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -9,7 +7,6 @@ import tzlocal
 
 from sentinel.paths import CREDENTIALS_PATH as CREDS_FILE, TOKEN_PATH as TOKEN_FILE
 
-# If modifying these scopes, delete token.json
 SCOPES = [
     'https://www.googleapis.com/auth/gmail.readonly',
     'https://www.googleapis.com/auth/gmail.send',

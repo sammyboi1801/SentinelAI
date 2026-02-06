@@ -8,8 +8,8 @@ echo %USERPROFILE%\.sentinel
 echo.
 pause
 
-rmdir /s /q "%USERPROFILE%\.sentinel"
-mkdir "%USERPROFILE%\.sentinel"
+rmdir /s /q "%USERPROFILE%\.sentinel-1"
+mkdir "%USERPROFILE%\.sentinel-1"
 
 echo.
 echo Sentinel has been FACTORY RESET.

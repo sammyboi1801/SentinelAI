@@ -2,7 +2,7 @@ import os
 import sys
 from pathlib import Path
 
-USER_DATA_DIR = Path.home() / ".sentinel"
+USER_DATA_DIR = Path.home() / ".sentinel-1"
 USER_DATA_DIR.mkdir(parents=True, exist_ok=True)
 LOGS_DIR = USER_DATA_DIR / "logs"
 LOGS_DIR.mkdir(exist_ok=True)

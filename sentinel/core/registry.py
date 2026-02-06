@@ -274,7 +274,7 @@ TIME & EMAIL:
 - get_time()
 - set_timer(seconds)
 - set_alarm(time_str)
-- send_email(to, subject, body) [REQUIRES APPROVAL]
+- send_email(to, subject, body, html=(true/false)) [REQUIRES APPROVAL]
 - read_emails(limit)
 
 MEMORY & COGNITIVE:
@@ -301,6 +301,7 @@ DESKTOP CONTROL:
 - maximize_window(app_name)
 - type_text(text)
 - speak(text)
+- focus_window(app_name): brings window to the front
 
 PERCEPTION:
 - listen(timeout)

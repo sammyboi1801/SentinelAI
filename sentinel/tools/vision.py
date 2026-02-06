@@ -1,18 +1,24 @@
 import base64
 import os
-import pyautogui
+import time
 import cv2
+import pyautogui
 from litellm import completion
 from sentinel.core.config import ConfigManager
+from sentinel.paths import USER_DATA_DIR
 
 
-def get_llm_env():
+SCREENSHOT_PATH = USER_DATA_DIR / "vision_cache_screen.png"
+WEBCAM_PATH = USER_DATA_DIR / "vision_cache_cam.png"
+
+
+def get_llm_config():
     """
-    Dynamically load latest keys into env for LiteLLM.
+    Loads keys and formats the model string for LiteLLM.
     """
     cfg = ConfigManager()
-    provider = cfg.get("llm.provider")
-    model = cfg.get("llm.model")
+    provider = cfg.get("llm.provider", "openai")
+    model = cfg.get("llm.model", "gpt-4o")
 
     if provider == "openai":
         os.environ["OPENAI_API_KEY"] = cfg.get_key("openai") or ""
@@ -21,8 +27,7 @@ def get_llm_env():
     elif provider == "groq":
         os.environ["GROQ_API_KEY"] = cfg.get_key("groq") or ""
 
-    full_model = f"{provider}/{model}"
-    return full_model
+    return f"{provider}/{model}"
 
 
 def encode_image(path):
@@ -32,7 +37,7 @@ def encode_image(path):
 
 def _analyze_image(image_path, prompt):
     try:
-        full_model = get_llm_env()
+        full_model = get_llm_config()
         base64_img = encode_image(image_path)
 
         message = {
@@ -56,39 +61,39 @@ def _analyze_image(image_path, prompt):
 
     except Exception as e:
         return (
-            f"Vision Error: {e}\n"
-            f"Tip: Ensure model supports vision "
-            f"(e.g. gpt-4o, claude-3-5-sonnet, llava)."
+            f"❌ Vision Error: {e}\n"
+            f"Tip: Ensure your model ({full_model}) supports image inputs."
         )
 
 
 def analyze_screen(prompt="Describe the contents of this screen"):
-    screenshot_path = "temp_vision.png"
     try:
-        pyautogui.screenshot(screenshot_path)
-        result = _analyze_image(screenshot_path, prompt)
-        return f"[Vision Result]: {result}"
+        pyautogui.screenshot(str(SCREENSHOT_PATH))
+        result = _analyze_image(SCREENSHOT_PATH, prompt)
+        return f"🖥️ [Screen Analysis]: {result}"
     except Exception as e:
-        return f"Screen capture error: {e}"
+        return f"❌ Screen capture error: {e}"
 
 
 def capture_webcam(prompt="Describe what you see"):
     try:
         cap = cv2.VideoCapture(0)
         if not cap.isOpened():
-            return "Error: Could not open webcam."
+            return "❌ Error: Could not open webcam."
+
+        for _ in range(10):
+            cap.read()
 
         ret, frame = cap.read()
         cap.release()
 
         if not ret:
-            return "Error: Failed to capture image."
+            return "❌ Error: Failed to capture image."
 
-        filename = "temp_webcam.png"
-        cv2.imwrite(filename, frame)
+        cv2.imwrite(str(WEBCAM_PATH), frame)
 
-        result = _analyze_image(filename, prompt)
-        return f"[Webcam Result]: {result}"
+        result = _analyze_image(WEBCAM_PATH, prompt)
+        return f"📷 [Webcam Analysis]: {result}"
 
     except Exception as e:
-        return f"Webcam error: {e}"
+        return f"❌ Webcam error: {e}"

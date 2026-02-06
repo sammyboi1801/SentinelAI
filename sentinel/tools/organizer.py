@@ -10,7 +10,6 @@ def get_downloads_folder() -> str:
     Returns the path to the user's Downloads folder.
     Cross-platform implementation using pathlib.
     """
-    # This works on Windows, macOS, and Linux
     return str(Path.home() / "Downloads")
 
 
@@ -50,7 +49,6 @@ def organize_files(directory: str, strategy: str = "extension") -> str:
 
     actions_taken = []
 
-    # Smart grouping for cleaner organization
     TYPE_MAP = {
         # Images
         "jpg": "Images", "jpeg": "Images", "png": "Images", "gif": "Images",
@@ -138,7 +136,6 @@ def bulk_rename(directory: str, pattern: str, replace_with: str) -> str:
                 new_name = file_path.name.replace(pattern, replace_with)
                 new_path = target_dir / new_name
 
-                # Prevent overwrite if destination exists
                 if new_path.exists():
                     new_path = _get_unique_name(target_dir, new_name)
 

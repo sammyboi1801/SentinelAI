@@ -230,7 +230,7 @@ class SentinelAgent:
                 self.history.append({"role": "user", "content": user_input})
                 memory_ops.log_activity("chat", user_input)
 
-                for _ in range(5):
+                for _ in range(10):
                     messages = self.history[-self.window_size * 2:]
                     full_resp = self.brain.query(current_sys, messages)
                     action = self._parse_action(full_resp)
@@ -277,7 +277,11 @@ class SentinelAgent:
                             UI.print_error(f"Tool Error: {e}")
                             self.history.append({"role": "system", "content": f"Error: {e}"})
                     else:
-                        break
+                        error_msg = f"Tool '{tool}' not found. Available tools: {', '.join(TOOLS.keys())}"
+                        UI.print_error(error_msg)
+                        self.history.append({"role": "assistant", "content": action.model_dump_json()})
+                        self.history.append({"role": "system", "content": error_msg})
+                        continue
 
                 self._enforce_memory_limit()
 

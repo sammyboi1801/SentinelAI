@@ -1,7 +1,7 @@
 # sentinel/auth.py
 
 from google_auth_oauthlib.flow import InstalledAppFlow
-from sentinel.paths import CREDS_FILE, TOKEN_FILE
+from sentinel.paths import CREDENTIALS_PATH as CREDS_FILE, TOKEN_PATH as TOKEN_FILE
 
 SCOPES = [
     'https://www.googleapis.com/auth/gmail.readonly',

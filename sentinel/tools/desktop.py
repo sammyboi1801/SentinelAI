@@ -3,15 +3,17 @@ import pygetwindow as gw
 import screen_brightness_control as sbc
 import platform
 import pyttsx3
+import base64
+import os
+import subprocess
+import sys
 
-# Fail-safe
 pyautogui.FAILSAFE = True
 
-_ENGINE = None
-
+# Global handle for the current speech process
+_CURRENT_SPEECH_PROCESS = None
 
 def _safe_str(x):
-    """Force any output to be a string (prevents Anthropic crashes)."""
     try:
         return str(x)
     except:
@@ -19,98 +21,207 @@ def _safe_str(x):
 
 
 def set_volume(level):
-    system = platform.system()
-
+    """
+    Sets volume by zeroing it out and stepping up.
+    """
     try:
         target = int(level)
 
-        # Mute first to calibrate
         pyautogui.press('volumedown', presses=50)
 
         clicks = int(target / 2)
         if clicks > 0:
             pyautogui.press('volumeup', presses=clicks)
 
-        return _safe_str(f"Volume adjusted to approx {target}% (OS: {system}).")
-
+        return f"🔊 Volume adjusted to ~{target}%."
     except Exception as e:
-        return _safe_str(f"Volume control failed: {e}")
+        return f"❌ Volume error: {e}"
+
+
+def media_control(action):
+    """
+    Controls media playback.
+    Actions: playpause, next, prev, mute
+    """
+    valid = ["playpause", "nexttrack", "prevtrack", "volumemute"]
+
+    # Map friendly names to keys
+    key_map = {
+        "play": "playpause",
+        "pause": "playpause",
+        "next": "nexttrack",
+        "skip": "nexttrack",
+        "previous": "prevtrack",
+        "back": "prevtrack",
+        "mute": "volumemute",
+        "unmute": "volumemute"
+    }
+
+    key = key_map.get(action.lower(), action.lower())
+
+    if key not in valid:
+        return f"❌ Unknown media command. Try: play, pause, next, mute."
+
+    try:
+        pyautogui.press(key)
+        return f"⏯️ Sent media command: {key}"
+    except Exception as e:
+        return f"❌ Media error: {e}"
 
 
 def set_brightness(level):
     try:
         sbc.set_brightness(int(level))
-        return _safe_str(f"Brightness set to {level}%.")
+        return f"🔆 Brightness set to {level}%."
     except Exception as e:
-        return _safe_str(f"Error setting brightness: {e}")
+        return f"❌ Brightness error: {e}"
 
 
 def _find_window_fuzzy(name):
-    """Find first window containing name (case-insensitive)."""
     name = name.lower()
-    for w in gw.getAllWindows():
+    # filtering for visible windows helps avoid hidden background processes
+    wins = [w for w in gw.getAllWindows() if w.title]
+
+    for w in wins:
         if name in w.title.lower():
             return w
     return None
 
 
+def focus_window(app_name):
+    """Brings a window to the front."""
+    try:
+        win = _find_window_fuzzy(app_name)
+        if not win: return f"❌ '{app_name}' not found."
+
+        if win.isMinimized:
+            win.restore()
+
+        win.activate()
+        return f"📂 Switched to: {win.title}"
+    except Exception as e:
+        return f"❌ Focus error: {e}"
+
+
+def close_window(app_name):
+    """Closes a window. Dangerous!"""
+    try:
+        win = _find_window_fuzzy(app_name)
+        if not win: return f"❌ '{app_name}' not found."
+
+        win.close()
+        return f"🗑️ Closed: {win.title}"
+    except Exception as e:
+        return f"❌ Close error: {e}"
+
+
 def minimize_window(app_name=None):
     try:
-        if not app_name:
-            win = gw.getActiveWindow()
-        else:
-            win = _find_window_fuzzy(app_name)
-
-        if not win:
-            return _safe_str(f"No window found for '{app_name}'.")
+        win = _find_window_fuzzy(app_name) if app_name else gw.getActiveWindow()
+        if not win: return "❌ No window found."
 
         win.minimize()
-        return _safe_str(f"Minimized: {win.title}")
-
+        return f"Actions: Minimized {win.title}"
     except Exception as e:
-        return _safe_str(f"Minimize error: {e}")
-
+        return f"Error: {e}"
 
 def maximize_window(app_name=None):
     try:
-        if not app_name:
-            win = gw.getActiveWindow()
-        else:
-            win = _find_window_fuzzy(app_name)
-
-        if not win:
-            return _safe_str(f"No window found for '{app_name}'.")
+        win = _find_window_fuzzy(app_name) if app_name else gw.getActiveWindow()
+        if not win: return "❌ No window found."
 
         win.maximize()
-        return _safe_str(f"Maximized: {win.title}")
-
+        return f"Actions: Maximized {win.title}"
     except Exception as e:
-        return _safe_str(f"Maximize error: {e}")
+        return f"Error: {e}"
 
 
 def type_text(text):
+    """Types text at a realistic speed."""
     try:
-        pyautogui.write(str(text), interval=0.001)
-        return _safe_str("Typed text successfully.")
+        # interval=0.005 is safer than 0.001 for some apps
+        pyautogui.write(str(text), interval=0.005)
+        return "⌨️ Typed text."
     except Exception as e:
-        return _safe_str(f"Typing error: {e}")
+        return f"❌ Typing error: {e}"
+
+
+def press_hotkey(keys):
+    """
+    Presses a combination of keys.
+    Example: "ctrl+s", "alt+f4", "command+c"
+    """
+    try:
+        combo = keys.lower().split('+')
+        pyautogui.hotkey(*combo)
+        return f"⌨️ Pressed: {keys}"
+    except Exception as e:
+        return f"❌ Hotkey error: {e}"
+
+
+def scroll(amount, direction="down"):
+    """Scrolls the screen."""
+    try:
+        clicks = int(amount)
+        if direction == "down":
+            clicks = -clicks
+
+        pyautogui.scroll(clicks)
+        return f"📜 Scrolled {direction} by {amount}."
+    except Exception as e:
+        return f"❌ Scroll error: {e}"
 
 
 def take_screenshot(filename="screenshot.png"):
     try:
         pyautogui.screenshot(filename)
-        return _safe_str(f"Screenshot saved to {filename}")
+        return f"📸 Screenshot saved to {filename}"
     except Exception as e:
-        return _safe_str(f"Screenshot failed: {e}")
+        return f"❌ Screenshot failed: {e}"
 
 
 def speak(text):
-    global _ENGINE
+    """
+    Non-Blocking, Process-Based Speech.
+    Spawns a separate Python process to handle the audio.
+    """
+    global _CURRENT_SPEECH_PROCESS
+
+    if _CURRENT_SPEECH_PROCESS and _CURRENT_SPEECH_PROCESS.poll() is None:
+        try:
+            _CURRENT_SPEECH_PROCESS.terminate()
+            _CURRENT_SPEECH_PROCESS.wait(timeout=0.5)
+        except Exception:
+            pass
+
     try:
-        if _ENGINE is None:
-            _ENGINE = pyttsx3.init()
-        _ENGINE.say(str(text))
-        _ENGINE.runAndWait()
-        return _safe_str("Spoken.")
+        b64_text = base64.b64encode(str(text).encode("utf-8")).decode("utf-8")
     except Exception as e:
-        return _safe_str(f"TTS Error: {e}")
+        return f"❌ Text encoding error: {e}"
+
+    script = (
+        "import sys, pyttsx3, base64; "
+        "text = base64.b64decode(sys.argv[1]).decode('utf-8'); "
+        "engine = pyttsx3.init(); "
+        "engine.say(text); "
+        "engine.runAndWait()"
+    )
+
+    cmd = [sys.executable, "-c", script, b64_text]
+
+    try:
+        startupinfo = None
+        if os.name == "nt":
+            startupinfo = subprocess.STARTUPINFO()
+            startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+
+        _CURRENT_SPEECH_PROCESS = subprocess.Popen(
+            cmd,
+            startupinfo=startupinfo,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+
+        return f"🗣️ Speaking: '{str(text)[:40]}...'"
+    except Exception as e:
+        return f"❌ Speech system error: {e}"
