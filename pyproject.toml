@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sentinel-ai-os"
-version = "1.0.6"
+version = "1.0.7"
 description = "Autonomous AI Operating System layer"
 readme = "README.md"
 requires-python = ">=3.9, <3.14"
@@ -12,7 +12,9 @@ license = "MIT"
 authors = [
   { name="Sam Selvaraj", email="samselvaraj1801@gmail.com" }
 ]
-keywords = ["ai", "agent", "automation", "llm"]
+
+keywords = ["ai", "agent", "automation", "llm", "rag", "os"]
+
 classifiers = [
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",

@@ -240,7 +240,7 @@ AVAILABLE TOOLS:
 **INSTRUCTION:** Do NOT ask for permission in the chat. Call the tool directly. The system will handle the approval step.
 
 SYSTEM & APPS:
-- open_app(name): launch an application
+- open_app(name): launch an application (fuzzy match supported)
 - close_app(name): close a running application [REQUIRES APPROVAL]
 - run_cmd(cmd): run shell command [REQUIRES APPROVAL]
 - get_clipboard(): get clipboard text
@@ -254,7 +254,7 @@ BROWSER:
 - read_webpage(url): extract webpage text
 
 FILES & INDEX:
-- read_file(path): read file
+- read_file(path): read file (supports .txt, .md, .py, .pdf, .docx, .xlsx)
 - write_file(path, content): write file
 - draft_code(filename, content): save code safely
 - build_index(verbose): scan filesystem
@@ -262,7 +262,7 @@ FILES & INDEX:
 - find_file(query): exact filename search (SQL, literal)
 - find_my_file(query): semantic + recency search (vague queries like "that pdf I edited last week")
 - rebuild_memory(verbose): rebuild index
-- organize_files(directory, strategy): organize files [REQUIRES APPROVAL]
+- organize_files(directory, strategy): strategy must be "extension" or "date" [REQUIRES APPROVAL]
 - bulk_rename(directory, pattern, replace_with): rename files [REQUIRES APPROVAL]
 
 OFFICE & DOCUMENTS:
@@ -274,13 +274,13 @@ OFFICE & DOCUMENTS:
 
 TIME & EMAIL:
 - get_time()
-- set_timer(seconds)
-- set_alarm(time_str)
+- set_timer(minutes): set a timer (argument is integer minutes)
+- set_alarm(time_str): set an alarm (format "HH:MM" 24-hour, e.g. "15:30")
 - send_email(to, subject, body, html=(true/false)) [REQUIRES APPROVAL]
 - read_emails(limit)
 
 MEMORY & COGNITIVE:
-- add_note(category, content)
+- add_note(category, content): category examples: "todo", "project", "reference"
 - list_notes(category)
 - store_fact(subject, predicate, obj)
 - delete_fact(subject, predicate, obj): remove stored memory facts
@@ -291,14 +291,14 @@ MEMORY & COGNITIVE:
 NAVIGATION & FLIGHTS:
 - geocode(address)
 - reverse_geocode(lat, lon)
-- calc_distance(origin, destination, mode)
+- calc_distance(origin, destination, mode): mode must be "driving", "walking", "bicycling", or "transit"
 - get_directions(origin, destination)
-- find_nearby(lat, lon, type)
-- search_flights(departure_id, arrival_id, date)
+- find_nearby(lat, lon, place_type): place_type examples: "restaurant", "gas_station", "hospital"
+- search_flights(departure_id, arrival_id, date): use IATA codes (e.g., "JFK", "LHR")
 
 DESKTOP CONTROL:
-- set_volume(level)
-- set_brightness(level)
+- set_volume(level): integer 0-100
+- set_brightness(level): integer 0-100
 - minimize_window(app_name)
 - maximize_window(app_name)
 - type_text(text)
@@ -324,7 +324,7 @@ CALENDAR:
 
 MACROS & INSTALLERS:
 - run_macro(name)
-- install_software(package_list): install Windows apps via winget
+- install_software(package_names): install Windows apps via winget (arg is a list of strings)
 - list_installed_apps(): list installed applications
 
 

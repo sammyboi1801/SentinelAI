@@ -230,7 +230,7 @@ class SentinelAgent:
                 self.history.append({"role": "user", "content": user_input})
                 memory_ops.log_activity("chat", user_input)
 
-                for _ in range(10):
+                for _ in range(20):
                     messages = self.history[-self.window_size * 2:]
                     full_resp = self.brain.query(current_sys, messages)
                     action = self._parse_action(full_resp)
