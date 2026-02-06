@@ -68,7 +68,7 @@ Sentinel is built on a modular Python architecture designed for extensibility.
 
 ### Prerequisites
 
-*   Python 3.9 or higher.
+*   Python 3.9 or higher but not 3.14.
 *   (Optional) **Ollama** installed for local offline inference.
 *   (Optional) A Google Cloud Console project for Gmail/Calendar integration.
 
@@ -76,7 +76,7 @@ Sentinel is built on a modular Python architecture designed for extensibility.
 
 As a published package, you can install Sentinel directly using pip:
 ```bash
-pip install sentinel-ai
+pip install sentinel-ai-os
 ```
 
 ### Step 2: System Boot & Configuration
