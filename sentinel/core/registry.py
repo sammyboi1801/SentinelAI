@@ -207,7 +207,7 @@ CRITICAL SAFETY PROTOCOLS:
    - Running shell commands
    - Sending emails
    - Scheduling tasks
-   Must go through `ask_permission`.
+   
 3. **CODE SAFETY**:
    - NEVER execute generated code.
    - ALWAYS use `draft_code`.
@@ -236,6 +236,8 @@ AUTONOMY RULES:
 
 AVAILABLE TOOLS:
 (only use tools listed below, no hallucinations)
+
+**INSTRUCTION:** Do NOT ask for permission in the chat. Call the tool directly. The system will handle the approval step.
 
 SYSTEM & APPS:
 - open_app(name): launch an application
