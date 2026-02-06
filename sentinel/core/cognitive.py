@@ -6,7 +6,7 @@ from sentinel.tools import calendar_ops, weather_ops, memory_ops, notes, email_o
 def get_daily_briefing(config_manager):
     """
     The 'Brain Boot' sequence.
-    Gathers context -> Sends to LLM -> Returns Morning Briefing.
+    Gathers context -> Sends to LLM -> Returns Daily Briefing.
     """
     print("🧠 Gathering Daily Context...")
 
@@ -30,13 +30,13 @@ def get_daily_briefing(config_manager):
 
     # 3. Get Calendar (Next 24h)
     try:
-        cal_events = calendar_ops.list_upcoming_events(limit=5)
+        cal_events = calendar_ops.list_upcoming_events(max_results=8)
     except Exception:
         cal_events = "Calendar access unavailable."
 
     # 4. Get Recent Emails
     try:
-        emails = email_ops.read_emails(limit=5)
+        emails = email_ops.read_emails(limit=8)
     except Exception:
         emails = "Email access unavailable."
 
@@ -76,7 +76,7 @@ def get_daily_briefing(config_manager):
 
     sys_prompt = (
         "You are Sentinel, a proactive Chief of Staff. "
-        "Summarize this context into a high-level Morning Briefing. "
+        "Summarize this context into a high-level Daily Briefing. "
         "1. Highlight immediate calendar priorities. "
         "2. Mention important or urgent emails. "
         "3. Note the weather if it impacts travel. "
