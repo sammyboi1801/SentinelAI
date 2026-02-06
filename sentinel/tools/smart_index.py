@@ -56,7 +56,6 @@ def embed(text):
     if model is None:
         return None
 
-    # Return as float32 bytes for storage
     return model.encode(text).astype("float32").tobytes()
 
 
@@ -67,13 +66,11 @@ def index_file(path):
     name = os.path.basename(path)
     ext = os.path.splitext(path)[1]
 
-    # Simple strategy: Index the filename.
-    # For deeper search, you could add file content here.
     text = name
 
     emb = embed(text)
     if emb is None:
-        return  # Skip if model failed to load
+        return
 
     conn = sqlite3.connect(DB)
     conn.execute("""
