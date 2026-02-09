@@ -2,6 +2,8 @@
 
 > **Your proactive OS assistant.** Sentinel is a terminal-based autonomous agent that integrates deeply with your local operating system, files, and cloud services to execute complex workflows via natural language.
 
+https://github.com/user-attachments/assets/e75f5e5b-a111-48e8-ba22-9c3ae15a7417
+
 ---
 
 ## 📖 Table of Contents
