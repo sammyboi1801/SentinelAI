@@ -25,11 +25,21 @@ settings = cfg.load() if cfg.exists() else {}
 def initialize_tools():
     print("\n[System] 🔄 Initializing File Systems...")
 
+    import threading
+    import schedule
+    from sentinel.tools import sql_index
+
+    # Initial full scan (runs once in background thread).
+    # When it finishes it automatically starts the filesystem watcher.
     t1 = threading.Thread(target=sql_index.build_index, args=(True,))
     t1.daemon = True
     t1.start()
 
-    schedule.every(60).minutes.do(sql_index.build_index, silent=True)
+    # Periodic re-scan every 60 min as a safety net
+    # (catches anything the watcher might miss, e.g. network drives).
+    schedule.every(60).minutes.do(sql_index.build_index, True)
+
+    from sentinel.core import scheduler
     scheduler.start_scheduler_service()
 
 def ask_permission(tool_name, func, **kwargs):

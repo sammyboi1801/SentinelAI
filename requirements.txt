@@ -32,3 +32,4 @@ typer
 numpy
 sentence-transformers
 tzlocal
+watchdog
